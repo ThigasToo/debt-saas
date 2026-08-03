@@ -39,3 +39,21 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+
+# dependências
+/node_modules
+
+# build
+/.next
+/out
+
+# variáveis de ambiente — NUNCA subir isso
+.env
+.env.local
+.env*.local
+
+# outros
+.DS_Store
+*.pem
+npm-debug.log*
