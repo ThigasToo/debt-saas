@@ -5,6 +5,7 @@ import { extractContractData } from '@/lib/extraction/extractContract'
 import { eq, and } from 'drizzle-orm'
 import { getSessionContext } from '@/lib/auth/session'
 import { getOrCreateCompanyId } from '@/lib/auth/company'
+import { createSupabaseAdminClient, CONTRACT_DOCUMENTS_BUCKET } from '@/lib/supabase/admin'
 
 async function resolveCompanyId(accountId: string, requestedCompanyId: string | null): Promise<string> {
   if (requestedCompanyId) {
@@ -50,11 +51,31 @@ export async function POST(req: NextRequest) {
     if (!contract) throw new Error('Falha ao criar contrato')
     console.log(`✓ Contrato criado: ${contract.id}`)
 
+    // Sobe o PDF de verdade pro Supabase Storage antes de qualquer outra coisa —
+    // se falhar aqui, não faz sentido seguir pra extração.
+    const safeFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
+    const storagePath = `${session.accountId}/${contract.id}/${safeFileName}`
+
+    const supabaseAdmin = createSupabaseAdminClient()
+    const { error: uploadError } = await supabaseAdmin.storage
+      .from(CONTRACT_DOCUMENTS_BUCKET)
+      .upload(storagePath, buffer, {
+        contentType: file.type || 'application/pdf',
+        upsert: false,
+      })
+
+    if (uploadError) {
+      console.error('❌ Erro ao subir PDF pro Storage:', uploadError)
+      await db.delete(contracts).where(eq(contracts.id, contract.id))
+      return NextResponse.json({ error: 'Erro ao salvar o arquivo PDF' }, { status: 500 })
+    }
+    console.log(`✓ PDF salvo no Storage: ${storagePath}`)
+
     await db.insert(contractDocuments).values({
       contractId: contract.id,
       fileName: file.name,
-      storagePath: `contracts/${contract.id}/${file.name}`,
-      mimeType: file.type,
+      storagePath,
+      mimeType: file.type || 'application/pdf',
       sizeBytes: buffer.length,
     })
 

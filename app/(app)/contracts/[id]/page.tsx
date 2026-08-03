@@ -71,6 +71,7 @@ export default function ContractReviewPage() {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [openingPdf, setOpeningPdf] = useState(false)
 
   const [showAddForm, setShowAddForm] = useState(false)
   const [newLabel, setNewLabel] = useState('')
@@ -190,6 +191,21 @@ export default function ContractReviewPage() {
     }
   }
 
+  const handleOpenPdf = async () => {
+  setOpeningPdf(true)
+  setError('')
+  try {
+    const res = await fetch(`/api/contracts/${id}/document`)
+    const data = await res.json()
+    if (!res.ok) throw new Error(data.error || 'Erro ao abrir o PDF')
+    window.open(data.url, '_blank')
+  } catch (err) {
+    setError(err instanceof Error ? err.message : 'Erro ao abrir o PDF')
+  } finally {
+    setOpeningPdf(false)
+  }
+}
+
   const handleConfirm = async () => {
     setSaving(true)
     setError('')
@@ -281,6 +297,10 @@ export default function ContractReviewPage() {
           </select>
         </div>
       )}
+
+      <button onClick={handleOpenPdf} disabled={openingPdf} className="btn-secondary mb-6">
+        {openingPdf ? 'Abrindo...' : '📄 Ver PDF original'}
+      </button>
 
       <ContractTabs contractId={id} />
 

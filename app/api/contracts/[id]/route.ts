@@ -10,6 +10,7 @@ import {
 } from '@/lib/db/schema'
 import { eq, asc, and } from 'drizzle-orm'
 import { getSessionContext } from '@/lib/auth/session'
+import { createSupabaseAdminClient, CONTRACT_DOCUMENTS_BUCKET } from '@/lib/supabase/admin'
 
 export async function GET(
   req: NextRequest,
@@ -139,6 +140,18 @@ export async function DELETE(
 
     if (!owned) {
       return NextResponse.json({ error: 'Contrato não encontrado' }, { status: 404 })
+    }
+
+    // Apaga o(s) arquivo(s) do Storage antes de apagar as linhas do banco
+    const docs = await db.select().from(contractDocuments).where(eq(contractDocuments.contractId, id))
+    if (docs.length > 0) {
+      const supabaseAdmin = createSupabaseAdminClient()
+      const { error: removeError } = await supabaseAdmin.storage
+        .from(CONTRACT_DOCUMENTS_BUCKET)
+        .remove(docs.map((d) => d.storagePath))
+      if (removeError) {
+        console.error('⚠️ Erro ao remover PDF do Storage (seguindo com a exclusão no banco):', removeError)
+      }
     }
 
     await db.delete(installments).where(eq(installments.contractId, id))

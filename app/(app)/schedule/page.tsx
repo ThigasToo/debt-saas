@@ -304,6 +304,12 @@ export default function ConsolidatedSchedulePage() {
         </button>
       </div>
 
+      <div className="mb-6">
+        <a href="/api/schedule/export" className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: '0.4rem' }}>
+          ⬇ Exportar Excel (PMT por ano/mês)
+        </a>
+      </div>
+
       {view === 'timeline' && (
         <>
           <div className="flex gap-2 mb-6 flex-wrap">
