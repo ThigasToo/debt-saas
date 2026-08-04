@@ -9,6 +9,7 @@ interface ContractListItem {
   contractType: string | null
   createdAt: string
   companyName: string | null
+  errorMessage: string | null
 }
 
 const STATUS_META: Record<string, { label: string; badge: string }> = {
@@ -16,6 +17,7 @@ const STATUS_META: Record<string, { label: string; badge: string }> = {
   PENDING_REVIEW: { label: 'Aguardando revisão', badge: 'badge-wheat' },
   ACTIVE: { label: 'Ativo', badge: 'badge-moss' },
   ARCHIVED: { label: 'Arquivado', badge: 'badge-neutral' },
+  FAILED: { label: 'Falhou', badge: 'badge-clay' },
 }
 
 export default function ContractsListPage() {
@@ -101,6 +103,11 @@ export default function ContractsListPage() {
                   <p className="text-xs mt-1" style={{ color: 'var(--color-ink-soft)' }}>
                     {c.contractType || 'Tipo não identificado'} • {new Date(c.createdAt).toLocaleDateString('pt-BR')}
                   </p>
+                  {c.status === 'FAILED' && c.errorMessage && (
+                    <p className="text-xs mt-1" style={{ color: 'var(--color-clay)' }}>
+                      ⚠ {c.errorMessage}
+                    </p>
+                  )}
                 </div>
               </Link>
               <span className={`badge ${meta.badge} whitespace-nowrap`}>{meta.label}</span>

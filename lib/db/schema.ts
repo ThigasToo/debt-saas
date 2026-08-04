@@ -12,7 +12,7 @@ import {
 
 // Enums
 export const membershipRoleEnum = pgEnum('membership_role', ['OWNER', 'ADMIN', 'MEMBER'])
-export const contractStatusEnum = pgEnum('contract_status', ['PROCESSING', 'PENDING_REVIEW', 'ACTIVE', 'ARCHIVED'])
+export const contractStatusEnum = pgEnum('contract_status', ['PROCESSING', 'PENDING_REVIEW', 'ACTIVE', 'ARCHIVED', 'FAILED'])
 export const extractionStatusEnum = pgEnum('extraction_status', ['PENDING_REVIEW', 'CONFIRMED', 'CORRECTED'])
 
 // Tabelas
@@ -59,6 +59,7 @@ export const contracts = pgTable('contracts', {
   profile: jsonb('profile'),
   // Especificação de cálculo da dívida (interpretada pela IA, executada pelo motor)
   scheduleSpec: jsonb('schedule_spec'),
+  errorMessage: text('error_message'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })

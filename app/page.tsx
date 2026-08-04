@@ -34,6 +34,7 @@ const STATUS_LABEL: Record<string, string> = {
   PENDING_REVIEW: 'Aguardando revisão',
   ACTIVE: 'Ativos',
   ARCHIVED: 'Arquivados',
+  FAILED: 'Falharam',
 }
 
 export default function DashboardPage() {

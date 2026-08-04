@@ -18,6 +18,7 @@ export async function GET(req: NextRequest) {
         contractType: contracts.contractType,
         createdAt: contracts.createdAt,
         companyName: companies.name,
+        errorMessage: contracts.errorMessage,
       })
       .from(contracts)
       .innerJoin(companies, eq(contracts.companyId, companies.id))
