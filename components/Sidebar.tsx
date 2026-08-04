@@ -82,6 +82,9 @@ export default function Sidebar() {
             <p className="figure text-sm font-semibold" style={{ color: isLow ? 'var(--color-clay)' : 'var(--color-ink)' }}>
               US$ {balanceUsd.toFixed(2)}
             </p>
+            <Link href="/billing" className="text-xs font-semibold" style={{ color: 'var(--color-moss-deep)' }}>
+              + Comprar créditos
+            </Link>
           </div>
         )}
         <button

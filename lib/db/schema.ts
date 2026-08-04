@@ -134,3 +134,14 @@ export const debtTranches = pgTable('debt_tranches', {
   scheduleSpec: jsonb('schedule_spec').notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 })
+
+export const creditPurchases = pgTable('credit_purchases', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  accountId: uuid('account_id').notNull().references(() => accounts.id),
+  stripeSessionId: text('stripe_session_id').notNull(),
+  amountUsdCents: integer('amount_usd_cents').notNull(),
+  creditsMicros: integer('credits_micros').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+}, (table) => ({
+  stripeSessionIdx: uniqueIndex('idx_stripe_session_id').on(table.stripeSessionId),
+}))
