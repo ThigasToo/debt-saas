@@ -7,7 +7,8 @@ import {
   real, 
   uuid,
   uniqueIndex,
-  jsonb
+  jsonb,
+  boolean
 } from 'drizzle-orm/pg-core'
 
 // Enums
@@ -19,6 +20,7 @@ export const extractionStatusEnum = pgEnum('extraction_status', ['PENDING_REVIEW
 export const accounts = pgTable('accounts', {
   id: uuid('id').defaultRandom().primaryKey(),
   name: text('name').notNull(),
+  aiCreditsMicros: integer('ai_credits_micros').notNull().default(2_000_000),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 })
 
@@ -62,6 +64,17 @@ export const contracts = pgTable('contracts', {
   errorMessage: text('error_message'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
+})
+
+export const aiUsageEvents = pgTable('ai_usage_events', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  accountId: uuid('account_id').notNull().references(() => accounts.id),
+  contractId: uuid('contract_id').references(() => contracts.id),
+  inputTokens: integer('input_tokens').notNull(),
+  outputTokens: integer('output_tokens').notNull(),
+  costMicros: integer('cost_micros').notNull(),
+  succeeded: boolean('succeeded').notNull().default(true),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
 })
 
 export const contractDocuments = pgTable('contract_documents', {

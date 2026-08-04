@@ -20,10 +20,28 @@ export interface DynamicField {
   confidence: number
 }
 
+export interface TokenUsage {
+  inputTokens: number
+  outputTokens: number
+}
+
 export interface ExtractionResult {
   profile: ContractProfile
   fields: DynamicField[]
   tranches: DebtTrancheSpec[]
+  usage: TokenUsage
+}
+
+// Erro que carrega o consumo real de tokens até o ponto da falha — permite debitar
+// o custo correto mesmo quando a extração não dá certo (os tokens já foram gastos
+// na Anthropic de qualquer forma).
+export class ExtractionError extends Error {
+  usage: TokenUsage
+  constructor(message: string, usage: TokenUsage) {
+    super(message)
+    this.name = 'ExtractionError'
+    this.usage = usage
+  }
 }
 
 function buildDocumentContent(pdfBase64: string, promptText: string) {
@@ -95,21 +113,21 @@ function parseFieldsResponse(rawText: string, label: string): DynamicField[] {
   try {
     const parsed = JSON.parse(cleaned) as { fields: DynamicField[] }
     return parsed.fields ?? []
-  } catch (err) {
-    console.warn(`JSON de campos cortado (${label}), tentando recuperação parcial...`)
+  } catch {
     const repaired = tryRepairTruncatedFieldsArray(cleaned)
     if (repaired) {
-      console.warn(`⚠️ Recuperados ${repaired.length} campos válidos de uma resposta cortada (${label})`)
+      console.warn(`  ⚠ Lote [${label}] veio cortado — recuperados ${repaired.length} campo(s) parciais`)
       return repaired
     }
-    console.error(`Falha total ao interpretar campos (${label}):`, cleaned.slice(-500))
-    throw new Error(`Falha ao interpretar campos de "${label}": ${err}`)
+    throw new Error(`Falha ao interpretar JSON do lote [${label}]`)
   }
 }
 
-// ---------- CHAMADA 1: perfil + tranches (uma ou mais linhas de crédito) ----------
+// ---------- CHAMADA 1: perfil + tranches ----------
 
-const PROFILE_AND_SPEC_PROMPT = `Você é um especialista em contratos financeiros brasileiros (CCB, CPR, financiamentos, mútuos, capital de giro, FINAME, confissão de dívida, leasing, etc). Cada contrato tem estrutura diferente — adapte-se ao que o documento realmente contém.
+const PROFILE_AND_SPEC_PROMPT = `Você é um especialista em contratos financeiros brasileiros (CCB, CPR, FINAME, financiamentos bancários e afins).
+
+Analise o PDF anexado e identifique a modalidade do contrato, o banco/credor, os tipos de garantia, e a(s) linha(s) de crédito (tranches) com suas especificações completas de cálculo.
 
 IMPORTANTE: um contrato pode ter MAIS DE UMA linha de crédito com condições diferentes (ex: recursos equalizáveis vs recursos livres, múltiplas séries, sublimites, tranches). Cada linha de crédito é uma "tranche" e deve ter sua PRÓPRIA especificação de cálculo completa — NUNCA some valores de tranches diferentes nem escolha uma taxa "predominante" para representar todas.
 
@@ -170,19 +188,32 @@ REGRAS:
 
 async function extractProfileAndTranches(
   pdfBase64: string
-): Promise<{ profile: ContractProfile; tranches: DebtTrancheSpec[] }> {
+): Promise<{ profile: ContractProfile; tranches: DebtTrancheSpec[]; usage: TokenUsage }> {
   const response = await anthropic.messages.create({
     model: EXTRACTION_MODEL,
     max_tokens: 8192,
     messages: [{ role: 'user', content: buildDocumentContent(pdfBase64, PROFILE_AND_SPEC_PROMPT) }],
   })
 
-  const textBlock = response.content.find((b) => b.type === 'text')
-  if (!textBlock || textBlock.type !== 'text') {
-    throw new Error('Claude não retornou texto na extração de perfil/tranches')
+  const usage: TokenUsage = {
+    inputTokens: response.usage.input_tokens,
+    outputTokens: response.usage.output_tokens,
   }
 
-  return parseJsonStrict(textBlock.text, 'profile + tranches')
+  const textBlock = response.content.find((b) => b.type === 'text')
+  if (!textBlock || textBlock.type !== 'text') {
+    throw new ExtractionError('Claude não retornou texto na extração de perfil/tranches', usage)
+  }
+
+  try {
+    const parsed = parseJsonStrict<{ profile: ContractProfile; tranches: DebtTrancheSpec[] }>(
+      textBlock.text,
+      'profile + tranches'
+    )
+    return { ...parsed, usage }
+  } catch (err) {
+    throw new ExtractionError(err instanceof Error ? err.message : String(err), usage)
+  }
 }
 
 // ---------- CHAMADA 2+: campos dinâmicos, em lotes de grupos ----------
@@ -225,45 +256,78 @@ async function extractFieldsForBatch(
   pdfBase64: string,
   profile: ContractProfile,
   groupsBatch: string[]
-): Promise<DynamicField[]> {
+): Promise<{ fields: DynamicField[]; usage: TokenUsage }> {
   const response = await anthropic.messages.create({
     model: EXTRACTION_MODEL,
     max_tokens: 4096,
     messages: [{ role: 'user', content: buildDocumentContent(pdfBase64, buildFieldsPrompt(profile, groupsBatch)) }],
   })
 
-  const textBlock = response.content.find((b) => b.type === 'text')
-  if (!textBlock || textBlock.type !== 'text') {
-    throw new Error(`Claude não retornou texto para o lote [${groupsBatch.join(', ')}]`)
+  const usage: TokenUsage = {
+    inputTokens: response.usage.input_tokens,
+    outputTokens: response.usage.output_tokens,
   }
 
-  return parseFieldsResponse(textBlock.text, groupsBatch.join(', '))
+  const textBlock = response.content.find((b) => b.type === 'text')
+  if (!textBlock || textBlock.type !== 'text') {
+    console.error(`  ✗ Lote [${groupsBatch.join(', ')}] sem texto na resposta`)
+    return { fields: [], usage }
+  }
+
+  try {
+    return { fields: parseFieldsResponse(textBlock.text, groupsBatch.join(', ')), usage }
+  } catch (err) {
+    console.error(`  ✗ Lote [${groupsBatch.join(', ')}] falhou ao interpretar:`, err instanceof Error ? err.message : err)
+    return { fields: [], usage }
+  }
 }
 
-async function extractFields(pdfBase64: string, profile: ContractProfile): Promise<DynamicField[]> {
+async function extractFields(
+  pdfBase64: string,
+  profile: ContractProfile
+): Promise<{ fields: DynamicField[]; usage: TokenUsage }> {
   const batches = chunkArray(profile.fieldGroups, GROUPS_PER_BATCH)
   console.log(`  → ${batches.length} lote(s) de grupos, ${GROUPS_PER_BATCH} grupo(s) por lote`)
 
   const results = await Promise.all(
     batches.map((batch, idx) =>
       extractFieldsForBatch(pdfBase64, profile, batch).catch((err) => {
+        // Só cai aqui se a chamada à API nem chegou a responder (ex: erro de rede) —
+        // nesse caso não há uso real pra cobrar.
         console.error(`  ✗ Lote ${idx + 1} falhou [${batch.join(', ')}]:`, err.message)
-        return [] as DynamicField[]
+        return { fields: [] as DynamicField[], usage: { inputTokens: 0, outputTokens: 0 } }
       })
     )
   )
-  return results.flat()
+
+  const fields = results.flatMap((r) => r.fields)
+  const usage = results.reduce(
+    (acc, r) => ({
+      inputTokens: acc.inputTokens + r.usage.inputTokens,
+      outputTokens: acc.outputTokens + r.usage.outputTokens,
+    }),
+    { inputTokens: 0, outputTokens: 0 }
+  )
+  return { fields, usage }
 }
 
 // ---------- Ponto de entrada público ----------
 
 export async function extractContractData(pdfBase64: string): Promise<ExtractionResult> {
   console.log('  → Chamada 1: perfil + tranches...')
-  const { profile, tranches } = await extractProfileAndTranches(pdfBase64)
+  const { profile, tranches, usage: profileUsage } = await extractProfileAndTranches(pdfBase64)
 
   console.log(`  → Perfil: ${profile.modality} • ${tranches.length} tranche(s): ${tranches.map((t) => t.label).join(', ')}`)
-  const fields = await extractFields(pdfBase64, profile)
+  const { fields, usage: fieldsUsage } = await extractFields(pdfBase64, profile)
   console.log(`  → ${fields.length} campos extraídos no total`)
 
-  return { profile, fields, tranches }
+  return {
+    profile,
+    fields,
+    tranches,
+    usage: {
+      inputTokens: profileUsage.inputTokens + fieldsUsage.inputTokens,
+      outputTokens: profileUsage.outputTokens + fieldsUsage.outputTokens,
+    },
+  }
 }

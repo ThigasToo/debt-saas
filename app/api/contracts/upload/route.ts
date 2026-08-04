@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
-import { contracts, contractDocuments, extractedFields, debtTranches, companies } from '@/lib/db/schema'
-import { extractContractData } from '@/lib/extraction/extractContract'
-import { eq, and } from 'drizzle-orm'
+import { contracts, contractDocuments, extractedFields, debtTranches, companies, accounts, aiUsageEvents } from '@/lib/db/schema'
+import { extractContractData, ExtractionError } from '@/lib/extraction/extractContract'
+import { tokensToMicros, MIN_BALANCE_TO_UPLOAD_MICROS } from '@/lib/billing/aiCredits'
+import { eq, and, sql } from 'drizzle-orm'
 import { getSessionContext } from '@/lib/auth/session'
 import { getOrCreateCompanyId } from '@/lib/auth/company'
 import { createSupabaseAdminClient, CONTRACT_DOCUMENTS_BUCKET } from '@/lib/supabase/admin'
@@ -18,11 +19,49 @@ async function resolveCompanyId(accountId: string, requestedCompanyId: string | 
   return getOrCreateCompanyId(accountId)
 }
 
+async function debitAiUsage(
+  accountId: string,
+  contractId: string,
+  inputTokens: number,
+  outputTokens: number,
+  succeeded: boolean
+) {
+  const costMicros = tokensToMicros(inputTokens, outputTokens)
+  if (costMicros <= 0) return
+
+  await db
+    .update(accounts)
+    .set({ aiCreditsMicros: sql`${accounts.aiCreditsMicros} - ${costMicros}` })
+    .where(eq(accounts.id, accountId))
+
+  await db.insert(aiUsageEvents).values({
+    accountId,
+    contractId,
+    inputTokens,
+    outputTokens,
+    costMicros,
+    succeeded,
+  })
+}
+
 export async function POST(req: NextRequest) {
   try {
     const session = await getSessionContext()
     if (!session) {
       return NextResponse.json({ error: 'Não autenticado' }, { status: 401 })
+    }
+
+    // Checa crédito ANTES de gastar qualquer coisa com IA
+    const [accountRow] = await db
+      .select({ aiCreditsMicros: accounts.aiCreditsMicros })
+      .from(accounts)
+      .where(eq(accounts.id, session.accountId))
+
+    if (!accountRow || accountRow.aiCreditsMicros < MIN_BALANCE_TO_UPLOAD_MICROS) {
+      return NextResponse.json(
+        { error: 'Créditos de IA insuficientes para processar um novo contrato. Entre em contato pra recarregar.' },
+        { status: 402 }
+      )
     }
 
     const formData = await req.formData()
@@ -49,7 +88,6 @@ export async function POST(req: NextRequest) {
     if (!contract) throw new Error('Falha ao criar contrato')
     console.log(`✓ Contrato criado: ${contract.id}`)
 
-    // Sobe o PDF pro Storage antes de qualquer outra coisa
     const safeFileName = file.name.replace(/[^a-zA-Z0-9._-]/g, '_')
     const storagePath = `${session.accountId}/${contract.id}/${safeFileName}`
 
@@ -76,8 +114,6 @@ export async function POST(req: NextRequest) {
       sizeBytes: buffer.length,
     })
 
-    // A partir daqui o contrato já existe e o PDF já está salvo — se a extração
-    // falhar, marcamos FAILED em vez de deixar preso em PROCESSING pra sempre.
     try {
       console.log(`🤖 Extraindo perfil, tranches e campos...`)
       const pdfBase64 = buffer.toString('base64')
@@ -122,6 +158,8 @@ export async function POST(req: NextRequest) {
         })
         .where(eq(contracts.id, contract.id))
 
+      await debitAiUsage(session.accountId, contract.id, result.usage.inputTokens, result.usage.outputTokens, true)
+
       console.log(`✓ Pronto para revisão (${result.tranches.length} tranche(s))`)
 
       return NextResponse.json({
@@ -134,6 +172,9 @@ export async function POST(req: NextRequest) {
     } catch (extractionErr) {
       const message = extractionErr instanceof Error ? extractionErr.message : String(extractionErr)
       console.error('❌ Erro na extração:', extractionErr)
+
+      const usage = extractionErr instanceof ExtractionError ? extractionErr.usage : { inputTokens: 0, outputTokens: 0 }
+      await debitAiUsage(session.accountId, contract.id, usage.inputTokens, usage.outputTokens, false)
 
       await db
         .update(contracts)
