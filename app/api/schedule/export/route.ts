@@ -143,7 +143,7 @@ export async function GET(req: NextRequest) {
     const buffer = await workbook.xlsx.writeBuffer()
     const fileName = `raiz-cronograma-pmt-${new Date().toISOString().slice(0, 10)}.xlsx`
 
-    return new NextResponse(buffer as Buffer, {
+    return new NextResponse(buffer as unknown as BodyInit, {
       headers: {
         'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         'Content-Disposition': `attachment; filename="${fileName}"`,
