@@ -1,5 +1,6 @@
 'use client'
 
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
@@ -16,6 +17,17 @@ export default function Sidebar() {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createSupabaseBrowserClient()
+  const [balanceUsd, setBalanceUsd] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (pathname === '/login') return
+    fetch('/api/account/credits')
+      .then((res) => res.json())
+      .then((data) => {
+        if (typeof data.balanceUsd === 'number') setBalanceUsd(data.balanceUsd)
+      })
+      .catch(() => {})
+  }, [pathname])
 
   if (pathname === '/login') return null
 
@@ -24,6 +36,8 @@ export default function Sidebar() {
     router.push('/login')
     router.refresh()
   }
+
+  const isLow = balanceUsd !== null && balanceUsd < 0.1
 
   return (
     <aside className="sidebar">
@@ -54,6 +68,22 @@ export default function Sidebar() {
       </nav>
 
       <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid var(--color-line)' }}>
+        {balanceUsd !== null && (
+          <div
+            style={{
+              padding: '0.6rem 0.75rem',
+              marginBottom: '0.75rem',
+              borderRadius: '0.5rem',
+              background: isLow ? 'var(--color-clay-soft)' : 'var(--color-canvas)',
+              border: `1px solid ${isLow ? 'var(--color-clay)' : 'var(--color-line)'}`,
+            }}
+          >
+            <p className="text-xs" style={{ color: 'var(--color-ink-soft)' }}>Créditos de IA</p>
+            <p className="figure text-sm font-semibold" style={{ color: isLow ? 'var(--color-clay)' : 'var(--color-ink)' }}>
+              US$ {balanceUsd.toFixed(2)}
+            </p>
+          </div>
+        )}
         <button
           onClick={handleLogout}
           style={{
