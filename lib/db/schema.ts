@@ -43,7 +43,7 @@ export const companies = pgTable('companies', {
   id: uuid('id').defaultRandom().primaryKey(),
   accountId: uuid('account_id').notNull().references(() => accounts.id),
   name: text('name').notNull(),
-  cnpj: text('cnpj').notNull(),
+  cnpj: text('cnpj'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   documentType: text('document_type').notNull().default('CNPJ'), // 'CNPJ' | 'CPF'
 }, (table) => ({
