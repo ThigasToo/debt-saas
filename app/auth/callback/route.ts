@@ -2,10 +2,19 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { ensureAccountForUser } from '@/lib/auth/setupAccount'
 
+function resolveOrigin(req: NextRequest): string {
+  const forwardedHost = req.headers.get('x-forwarded-host')
+  const forwardedProto = req.headers.get('x-forwarded-proto') || 'https'
+  if (forwardedHost) return `${forwardedProto}://${forwardedHost}`
+  // Fallback — só usado se o proxy não mandar esses headers por algum motivo
+  return new URL(req.url).origin
+}
+
 export async function GET(req: NextRequest) {
-  const { searchParams, origin } = new URL(req.url)
+  const { searchParams } = new URL(req.url)
   const code = searchParams.get('code')
   const next = searchParams.get('next') || '/'
+  const origin = resolveOrigin(req)
 
   if (!code) {
     return NextResponse.redirect(`${origin}/login?error=confirmation_failed`)
@@ -22,9 +31,6 @@ export async function GET(req: NextRequest) {
   try {
     await ensureAccountForUser(data.user.id, data.user.email ?? '')
   } catch (err) {
-    // Antes: engolia o erro e mandava pro dashboard mesmo assim (sessão "solta", sem conta).
-    // Agora: desloga e manda pro login com um erro explícito, em vez de deixar
-    // o usuário preso vendo "não autenticado" em tudo sem entender por quê.
     console.error('Erro ao criar conta após confirmação de e-mail:', err)
     await supabase.auth.signOut()
     return NextResponse.redirect(`${origin}/login?error=account_setup_failed`)
