@@ -5,6 +5,8 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 
+const NO_SIDEBAR_PATHS = ['/login', '/forgot-password', '/reset-password']
+
 const NAV_ITEMS = [
   { href: '/', label: 'Dashboard', icon: '◧' },
   { href: '/contracts', label: 'Contratos', icon: '▤' },
@@ -20,7 +22,7 @@ export default function Sidebar() {
   const [balanceUsd, setBalanceUsd] = useState<number | null>(null)
 
   useEffect(() => {
-    if (pathname === '/login') return
+    if (NO_SIDEBAR_PATHS.some((p) => pathname?.startsWith(p))) return
     fetch('/api/account/credits')
       .then((res) => res.json())
       .then((data) => {
@@ -29,7 +31,7 @@ export default function Sidebar() {
       .catch(() => {})
   }, [pathname])
 
-  if (pathname === '/login') return null
+  if (NO_SIDEBAR_PATHS.some((p) => pathname?.startsWith(p))) return null
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
