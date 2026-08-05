@@ -2,6 +2,7 @@
 
 import { Suspense, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import Link from 'next/link'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 
 function LoginPageInner() {
@@ -122,6 +123,12 @@ function LoginPageInner() {
               style={{ borderColor: 'var(--color-line)' }}
             />
           </div>
+
+          {mode === 'login' && (
+            <Link href="/forgot-password" className="text-xs block text-right" style={{ color: 'var(--color-moss-deep)' }}>
+              Esqueceu sua senha?
+            </Link>
+          )}
 
           {error && (
             <p className="text-xs p-2 rounded" style={{ background: 'var(--color-clay-soft)', color: 'var(--color-clay)' }}>
