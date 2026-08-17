@@ -72,13 +72,13 @@ function LoginPageInner() {
   return (
     <div className="fixed inset-0 flex items-center justify-center auth-backdrop overflow-hidden">
       <div className="card glass-card p-10 w-full max-w-md" style={{ borderRadius: '28px' }}>
-        <div className="flex items-center gap-3 mb-6">
+        <Link href='/' className="flex items-center gap-3 mb-6">
           <Logo size={48} />
           <div>
             <p className="font-semibold" style={{ fontFamily: 'var(--font-display)' }}>Raiz</p>
             <p className="text-xs" style={{ color: 'var(--color-ink-soft)' }}>Gestão de Dívida</p>
           </div>
-        </div>
+        </Link>
 
         <h1 className="text-2xl font-semibold mb-1">{mode === 'login' ? 'Entrar' : 'Criar conta'}</h1>
         <p className="text-sm mb-6" style={{ color: 'var(--color-ink-soft)' }}>

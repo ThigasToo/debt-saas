@@ -32,13 +32,13 @@ export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen flex items-center justify-center auth-backdrop">
       <div className="card glass-card p-10 w-full max-w-md" style={{ borderRadius: '28px' }}>
-        <div className="flex items-center gap-3 mb-6">
+        <Link href="/" className="flex items-center gap-3 mb-6">
           <Logo size={48} />
           <div>
             <p className="font-semibold" style={{ fontFamily: 'var(--font-display)' }}>Raiz</p>
             <p className="text-xs" style={{ color: 'var(--color-ink-soft)' }}>Gestão de Dívida</p>
           </div>
-        </div>
+        </Link>
 
         {sent ? (
           <>

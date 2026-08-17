@@ -4,6 +4,7 @@ import { Suspense, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
 import Logo from '@/components/Logo'
+import Link from 'next/link'
 
 function ConfirmResetInner() {
   const router = useRouter()
@@ -38,13 +39,13 @@ function ConfirmResetInner() {
   return (
     <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--color-canvas)' }}>
       <div className="card p-8 w-full max-w-sm text-center">
-        <div className="flex items-center gap-3 mb-6">
+        <Link href="/" className="flex items-center gap-3 mb-6">
           <Logo size={40} />
           <div>
             <p className="font-semibold" style={{ fontFamily: 'var(--font-display)' }}>Raiz</p>
             <p className="text-xs" style={{ color: 'var(--color-ink-soft)' }}>Gestão de Dívida</p>
           </div>
-        </div>
+        </Link>
 
         <h1 className="text-lg font-semibold mb-2">Redefinir senha</h1>
         <p className="text-sm mb-6" style={{ color: 'var(--color-ink-soft)' }}>
