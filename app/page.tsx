@@ -72,6 +72,7 @@ export default function DashboardPage() {
           <h1 className="page-title">Dashboard da Dívida</h1>
         </div>
         <div className="flex gap-2">
+          <a href="/api/reports/portfolio" className="btn-secondary">⬇ Exportar Base de Dados</a>
           <Link href="/upload" className="btn-secondary">+ Novo Upload</Link>
           <Link href="/contracts" className="btn-primary">Ver Contratos</Link>
         </div>

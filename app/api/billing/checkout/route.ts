@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getSessionContext } from '@/lib/auth/session'
-import { stripe } from '@/lib/stripe'
+import { getStripe } from '@/lib/stripe'
 import { getUsdBrlRate } from '@/lib/billing/exchangeRate'
 import { CREDIT_PACKAGES, calculateCreditsForPackage } from '@/lib/billing/creditPackages'
 
@@ -20,6 +20,7 @@ export async function POST(req: NextRequest) {
     const origin = req.headers.get('origin') || new URL(req.url).origin
     const { rate } = await getUsdBrlRate()
     const creditsMicros = calculateCreditsForPackage(pkg.priceBrlCents, rate)
+    const stripe = getStripe()
 
     const checkoutSession = await stripe.checkout.sessions.create({
       mode: 'payment',

@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { accounts, creditPurchases } from '@/lib/db/schema'
 import { eq, sql } from 'drizzle-orm'
-import { stripe } from '@/lib/stripe'
+import { getStripe } from '@/lib/stripe'
 import Stripe from 'stripe'
 
 export async function POST(req: NextRequest) {
@@ -15,6 +15,7 @@ export async function POST(req: NextRequest) {
 
   let event: Stripe.Event
   try {
+    const stripe = getStripe()
     event = stripe.webhooks.constructEvent(rawBody, signature, process.env.STRIPE_WEBHOOK_SECRET!)
   } catch (err) {
     console.error('❌ Assinatura do webhook inválida:', err)
