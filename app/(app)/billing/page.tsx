@@ -63,7 +63,7 @@ export default function BillingPage() {
       <h1 className="page-title mb-6">Comprar créditos</h1>
 
       {balanceUsd !== null && (
-        <div className="card p-4 mb-4">
+        <div className="card glass-card p-4 mb-4">
           <p className="text-xs" style={{ color: 'var(--color-ink-soft)' }}>Saldo atual</p>
           <p className="figure text-lg font-semibold">US$ {balanceUsd.toFixed(2)}</p>
         </div>
@@ -83,7 +83,7 @@ export default function BillingPage() {
 
       <div className="space-y-4">
         {(quote?.packages ?? []).map((pkg) => (
-          <div key={pkg.id} className="card p-5 flex items-center justify-between">
+          <div key={pkg.id} className="card glass-card p-5 flex items-center justify-between">
             <div>
               <p className="font-semibold">{pkg.label}</p>
               <p className="text-sm" style={{ color: 'var(--color-ink-soft)' }}>

@@ -27,7 +27,11 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  const isPublicPath = PUBLIC_PATHS.some((p) => request.nextUrl.pathname.startsWith(p))
+  const pathname = request.nextUrl.pathname
+  // "/" é a landing pública — comparação EXATA de propósito. Com startsWith (como
+  // as demais entradas), "/" bateria com QUALQUER caminho do site, já que todos
+  // começam com "/" — isso tornaria o app inteiro público sem querer.
+  const isPublicPath = pathname === '/' || PUBLIC_PATHS.some((p) => pathname.startsWith(p))
 
   if (!user && !isPublicPath) {
     return NextResponse.redirect(new URL('/login', request.url))
@@ -36,9 +40,6 @@ export async function middleware(request: NextRequest) {
   return response
 }
 
-// Rotas de API ficam de fora do middleware de propósito: cada uma já verifica a
-// sessão sozinha (getSessionContext), e deixar uploads de arquivo passarem pelo
-// middleware aplica um limite de corpo bem menor que o da rota, quebrando PDFs maiores.
 export const config = {
   matcher: ['/((?!_next/static|_next/image|favicon.ico|api).*)'],
 }

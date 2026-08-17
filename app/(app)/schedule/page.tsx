@@ -262,19 +262,19 @@ export default function ConsolidatedSchedulePage() {
       )}
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div className="card p-4">
+        <div className="card glass-card p-4">
           <p className="text-xs uppercase" style={{ color: 'var(--color-ink-soft)' }}>Em aberto</p>
           <p className="text-lg font-bold figure">{formatCurrency(summary.totalPending)}</p>
         </div>
-        <div className="card p-4">
+        <div className="card glass-card p-4">
           <p className="text-xs uppercase" style={{ color: 'var(--color-clay)' }}>Atrasado</p>
           <p className="text-lg font-bold figure" style={{ color: 'var(--color-clay)' }}>{formatCurrency(summary.totalOverdue)}</p>
         </div>
-        <div className="card p-4">
+        <div className="card glass-card p-4">
           <p className="text-xs uppercase" style={{ color: 'var(--color-wheat)' }}>Próximos 30 dias</p>
           <p className="text-lg font-bold figure" style={{ color: 'var(--color-wheat)' }}>{formatCurrency(summary.totalNext30)}</p>
         </div>
-        <div className="card p-4">
+        <div className="card glass-card p-4">
           <p className="text-xs uppercase" style={{ color: 'var(--color-moss-deep)' }}>Já pago</p>
           <p className="text-lg font-bold figure" style={{ color: 'var(--color-moss-deep)' }}>{formatCurrency(summary.totalPaid)}</p>
         </div>
@@ -333,7 +333,7 @@ export default function ConsolidatedSchedulePage() {
           </div>
 
           {filtered.length === 0 ? (
-            <div className="card p-10 text-center">
+            <div className="card glass-card p-10 text-center">
               <p className="text-sm" style={{ color: 'var(--color-ink-soft)' }}>
                 {installmentsList.length === 0
                   ? 'Nenhuma parcela gerada ainda. Vá em um contrato e gere o cronograma das tranches.'
@@ -346,7 +346,7 @@ export default function ConsolidatedSchedulePage() {
                 <h2 className="text-xs font-bold uppercase tracking-wide mb-2" style={{ color: 'var(--color-ink-soft)' }}>
                   {month}
                 </h2>
-                <div className="card overflow-hidden">
+                <div className="card glass-card overflow-hidden">
                   <table className="w-full text-sm">
                     <thead style={{ background: 'var(--color-canvas)' }}>
                       <tr className="text-xs uppercase" style={{ color: 'var(--color-ink-soft)' }}>
@@ -399,7 +399,7 @@ export default function ConsolidatedSchedulePage() {
       {view === 'pmt' && (
         <>
           {byYear.length === 0 ? (
-            <div className="card p-10 text-center">
+            <div className="card glass-card p-10 text-center">
               <p className="text-sm" style={{ color: 'var(--color-ink-soft)' }}>
                 Nenhuma parcela gerada ainda.
               </p>
@@ -408,7 +408,7 @@ export default function ConsolidatedSchedulePage() {
             byYear.map((yg) => {
               const isCollapsed = collapsedYears.has(yg.year)
               return (
-                <div key={yg.year} className="card mb-4 overflow-hidden">
+                <div key={yg.year} className="card glass-card mb-4 overflow-hidden">
                   <button
                     onClick={() => toggleYear(yg.year)}
                     className="w-full p-4 flex items-center justify-between"
@@ -492,13 +492,13 @@ export default function ConsolidatedSchedulePage() {
       {view === 'byContract' && (
         <>
           {byContract.length === 0 ? (
-            <div className="card p-10 text-center">
+            <div className="card glass-card p-10 text-center">
               <p className="text-sm" style={{ color: 'var(--color-ink-soft)' }}>
                 Nenhuma parcela gerada ainda.
               </p>
             </div>
           ) : (
-            <div className="card overflow-hidden">
+            <div className="card glass-card overflow-hidden">
               <table className="w-full text-sm">
                 <thead style={{ background: 'var(--color-canvas)' }}>
                   <tr className="text-xs uppercase" style={{ color: 'var(--color-ink-soft)' }}>

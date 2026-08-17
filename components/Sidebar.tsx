@@ -4,16 +4,22 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
-
-const NO_SIDEBAR_PATHS = ['/login', '/forgot-password', '/reset-password']
+import Logo from './Logo'
 
 const NAV_ITEMS = [
-  { href: '/', label: 'Dashboard', icon: '◧' },
+  { href: '/dashboard', label: 'Dashboard', icon: '◧' },
   { href: '/contracts', label: 'Contratos', icon: '▤' },
   { href: '/schedule', label: 'Cronograma', icon: '▦' },
   { href: '/companies', label: 'Empresas', icon: '🏢' },
   { href: '/upload', label: 'Novo Upload', icon: '↑' },
 ]
+
+const NO_SIDEBAR_PREFIXES = ['/login', '/forgot-password', '/reset-password']
+
+function hideSidebar(pathname: string | null): boolean {
+  if (!pathname) return false
+  return pathname === '/' || NO_SIDEBAR_PREFIXES.some((p) => pathname.startsWith(p))
+}
 
 export default function Sidebar() {
   const pathname = usePathname()
@@ -22,7 +28,7 @@ export default function Sidebar() {
   const [balanceUsd, setBalanceUsd] = useState<number | null>(null)
 
   useEffect(() => {
-    if (NO_SIDEBAR_PATHS.some((p) => pathname?.startsWith(p))) return
+    if (hideSidebar(pathname)) return
     fetch('/api/account/credits')
       .then((res) => res.json())
       .then((data) => {
@@ -31,7 +37,7 @@ export default function Sidebar() {
       .catch(() => {})
   }, [pathname])
 
-  if (NO_SIDEBAR_PATHS.some((p) => pathname?.startsWith(p))) return null
+  if (hideSidebar(pathname)) return null
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
@@ -42,25 +48,36 @@ export default function Sidebar() {
   const isLow = balanceUsd !== null && balanceUsd < 0.1
 
   return (
-    <aside className="sidebar">
-      <Link href="/" className="sidebar-brand">
-        <span className="sidebar-mark">
-          <span className="sidebar-mark-core" />
-        </span>
+    <aside
+      className="sidebar glass-panel"
+      style={{
+        margin: '1rem',
+        borderRadius: '28px',
+        height: 'calc(100vh - 2rem)',
+        position: 'sticky',
+        top: '1rem',
+        display: 'flex',
+        flexDirection: 'column',
+        padding: '1.25rem',
+      }}
+    >
+      <Link href="/dashboard" className="sidebar-brand" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+        <Logo size={38} />
         <span className="sidebar-brand-label">
           Raiz
           <span>Gestão de Dívida</span>
         </span>
       </Link>
 
-      <nav className="sidebar-nav">
+      <nav className="sidebar-nav" style={{ marginTop: '1.5rem' }}>
         {NAV_ITEMS.map((item) => {
-          const isActive = item.href === '/' ? pathname === '/' : pathname?.startsWith(item.href)
+          const isActive = pathname?.startsWith(item.href)
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`nav-link ${isActive ? 'nav-link-active' : ''}`}
+              className={`nav-link ${isActive ? 'nav-link-active glass-pill' : ''}`}
+              style={isActive ? { background: 'rgba(34, 177, 76, 0.12)', borderColor: 'rgba(34, 177, 76, 0.25)' } : undefined}
             >
               <span aria-hidden>{item.icon}</span>
               {item.label}
@@ -69,15 +86,15 @@ export default function Sidebar() {
         })}
       </nav>
 
-      <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid var(--color-line)' }}>
+      <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.5)' }}>
         {balanceUsd !== null && (
           <div
+            className="glass-card"
             style={{
               padding: '0.6rem 0.75rem',
               marginBottom: '0.75rem',
-              borderRadius: '0.5rem',
-              background: isLow ? 'var(--color-clay-soft)' : 'var(--color-canvas)',
-              border: `1px solid ${isLow ? 'var(--color-clay)' : 'var(--color-line)'}`,
+              borderRadius: '14px',
+              background: isLow ? 'rgba(196, 90, 60, 0.12)' : undefined,
             }}
           >
             <p className="text-xs" style={{ color: 'var(--color-ink-soft)' }}>Créditos de IA</p>
@@ -91,15 +108,13 @@ export default function Sidebar() {
         )}
         <button
           onClick={handleLogout}
+          className="glass-pill"
           style={{
             width: '100%',
             display: 'flex',
             alignItems: 'center',
             gap: '0.5rem',
             padding: '0.75rem 1rem',
-            borderRadius: '0.5rem',
-            border: '1px solid var(--color-clay)',
-            background: 'var(--color-clay-soft)',
             color: 'var(--color-clay)',
             fontWeight: 600,
             fontSize: '0.875rem',

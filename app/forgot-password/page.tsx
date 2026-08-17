@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
+import Logo from '@/components/Logo'
 
 export default function ForgotPasswordPage() {
   const supabase = createSupabaseBrowserClient()
@@ -29,10 +30,10 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--color-canvas)' }}>
-      <div className="card p-8 w-full max-w-sm">
+    <div className="min-h-screen flex items-center justify-center auth-backdrop">
+      <div className="card glass-card p-10 w-full max-w-md" style={{ borderRadius: '28px' }}>
         <div className="flex items-center gap-3 mb-6">
-          <span className="sidebar-mark"><span className="sidebar-mark-core" /></span>
+          <Logo size={48} />
           <div>
             <p className="font-semibold" style={{ fontFamily: 'var(--font-display)' }}>Raiz</p>
             <p className="text-xs" style={{ color: 'var(--color-ink-soft)' }}>Gestão de Dívida</p>
@@ -41,14 +42,14 @@ export default function ForgotPasswordPage() {
 
         {sent ? (
           <>
-            <h1 className="text-lg font-semibold mb-1">Verifique seu e-mail</h1>
+            <h1 className="text-2xl font-semibold mb-1">Verifique seu e-mail</h1>
             <p className="text-sm mb-6" style={{ color: 'var(--color-ink-soft)' }}>
               Se existir uma conta com o e-mail <strong>{email}</strong>, enviamos um link pra redefinir a senha.
             </p>
           </>
         ) : (
           <>
-            <h1 className="text-lg font-semibold mb-1">Esqueceu sua senha?</h1>
+            <h1 className="text-2xl font-semibold mb-1">Esqueceu sua senha?</h1>
             <p className="text-sm mb-6" style={{ color: 'var(--color-ink-soft)' }}>
               Digite seu e-mail e mandamos um link pra você redefinir a senha.
             </p>

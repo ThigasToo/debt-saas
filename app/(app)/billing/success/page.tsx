@@ -29,14 +29,14 @@ function BillingSuccessInner() {
       </p>
 
       {balanceUsd !== null && (
-        <div className="card p-4 mb-6 inline-block">
+        <div className="card glass-card p-4 mb-6 inline-block">
           <p className="text-xs" style={{ color: 'var(--color-ink-soft)' }}>Saldo atual</p>
           <p className="figure text-lg font-semibold">US$ {balanceUsd.toFixed(2)}</p>
         </div>
       )}
 
       <div>
-        <Link href="/" className="btn-primary">Ir pro Dashboard</Link>
+        <Link href="/dashboard" className="btn-primary">Ir pro Dashboard</Link>
       </div>
     </div>
   )

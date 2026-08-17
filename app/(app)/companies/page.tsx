@@ -127,7 +127,7 @@ export default function CompaniesPage() {
       )}
 
       {showForm && (
-        <div className="card p-4 mb-6">
+        <div className="card glass-card p-4 mb-6">
           <h3 className="text-sm font-semibold mb-3">{editingId ? 'Editar' : 'Nova'} empresa/pessoa</h3>
           <div className="grid grid-cols-2 gap-3">
             <div className="col-span-2">
@@ -177,7 +177,7 @@ export default function CompaniesPage() {
       {loading ? (
         <p className="text-sm" style={{ color: 'var(--color-ink-soft)' }}>Carregando...</p>
       ) : companiesList.length === 0 ? (
-        <div className="card p-10 text-center">
+        <div className="card glass-cardp-10 text-center">
           <p className="text-sm" style={{ color: 'var(--color-ink-soft)' }}>
             Nenhuma empresa ou pessoa cadastrada ainda.
           </p>
@@ -185,7 +185,7 @@ export default function CompaniesPage() {
       ) : (
         <div className="space-y-3">
           {companiesList.map((c) => (
-            <div key={c.id} className="card p-4 flex items-center justify-between">
+            <div key={c.id} className="card glass-card p-4 flex items-center justify-between">
               <div>
                 <p className="font-semibold">{c.name}</p>
                 <p className="text-xs mt-1 figure" style={{ color: 'var(--color-ink-soft)' }}>

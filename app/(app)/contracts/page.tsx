@@ -76,12 +76,12 @@ export default function ContractsListPage() {
 
       {loading && <p className="text-sm" style={{ color: 'var(--color-ink-soft)' }}>Carregando...</p>}
       {error && (
-        <div className="card p-4 mb-4">
+        <div className="card glass-card p-4 mb-4">
           <p className="text-sm" style={{ color: 'var(--color-clay)' }}>{error}</p>
         </div>
       )}
       {!loading && contracts.length === 0 && (
-        <div className="card p-10 text-center">
+        <div className="card glass-card p-10 text-center">
           <p className="text-sm" style={{ color: 'var(--color-ink-soft)' }}>
             Nenhum contrato por aqui ainda. Suba o primeiro PDF pra começar.
           </p>
@@ -93,7 +93,7 @@ export default function ContractsListPage() {
           const meta = STATUS_META[c.status] || { label: c.status, badge: 'badge-neutral' }
           const isDeleting = deletingId === c.id
           return (
-            <div key={c.id} className="card p-4 flex items-center gap-3">
+            <div key={c.id} className="card glass-card p-4 flex items-center gap-3">
               <Link
                 href={`/contracts/${c.id}`}
                 className="flex-1 flex items-center justify-between hover:opacity-90 transition"

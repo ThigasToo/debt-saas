@@ -4,6 +4,7 @@ import { Suspense, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
+import Logo from '@/components/Logo'
 
 function LoginPageInner() {
   const router = useRouter()
@@ -34,7 +35,7 @@ function LoginPageInner() {
       if (mode === 'login') {
         const { error: signInError } = await supabase.auth.signInWithPassword({ email, password })
         if (signInError) throw signInError
-        router.push('/')
+        router.push('/dashboard')
         router.refresh()
       } else {
         const { data, error: signUpError } = await supabase.auth.signUp({
@@ -58,7 +59,7 @@ function LoginPageInner() {
           body: JSON.stringify({ accountName }),
         })
 
-        router.push('/')
+        router.push('/dashboard')
         router.refresh()
       }
     } catch (err) {
@@ -69,17 +70,17 @@ function LoginPageInner() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--color-canvas)' }}>
-      <div className="card p-8 w-full max-w-sm">
+    <div className="fixed inset-0 flex items-center justify-center auth-backdrop overflow-hidden">
+      <div className="card glass-card p-10 w-full max-w-md" style={{ borderRadius: '28px' }}>
         <div className="flex items-center gap-3 mb-6">
-          <span className="sidebar-mark"><span className="sidebar-mark-core" /></span>
+          <Logo size={48} />
           <div>
             <p className="font-semibold" style={{ fontFamily: 'var(--font-display)' }}>Raiz</p>
             <p className="text-xs" style={{ color: 'var(--color-ink-soft)' }}>Gestão de Dívida</p>
           </div>
         </div>
 
-        <h1 className="text-lg font-semibold mb-1">{mode === 'login' ? 'Entrar' : 'Criar conta'}</h1>
+        <h1 className="text-2xl font-semibold mb-1">{mode === 'login' ? 'Entrar' : 'Criar conta'}</h1>
         <p className="text-sm mb-6" style={{ color: 'var(--color-ink-soft)' }}>
           {mode === 'login' ? 'Acesse sua carteira de contratos.' : 'Comece a organizar a dívida da sua empresa.'}
         </p>

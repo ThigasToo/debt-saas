@@ -258,7 +258,7 @@ export default function ContractReviewPage() {
     <div className="max-w-3xl mx-auto">
       <Link href="/contracts" className="text-sm" style={{ color: 'var(--color-moss-deep)' }}>← Voltar para contratos</Link>
 
-      <div className="card p-6 mt-4 mb-2">
+      <div className="card glass-card p-6 mt-4 mb-2">
         <div className="flex items-start justify-between">
           <div>
             <p className="page-eyebrow mb-1">{contract.companyCnpj}</p>
@@ -280,7 +280,7 @@ export default function ContractReviewPage() {
       </div>
 
       {companiesOptions.length > 0 && (
-        <div className="card p-4 mb-6">
+        <div className="card glass-card p-4 mb-6">
           <label className="block text-xs font-medium mb-1" style={{ color: 'var(--color-ink-soft)' }}>
             Empresa/pessoa vinculada
           </label>
@@ -316,7 +316,7 @@ export default function ContractReviewPage() {
       )}
 
       {spec && (spec.assumptions?.length > 0 || spec.openQuestions?.length > 0) && (
-        <div className="card p-4 mb-6 space-y-2">
+        <div className="card glass-card p-4 mb-6 space-y-2">
           <p className="text-sm font-semibold" style={{ color: 'var(--color-wheat)' }}>
             A IA precisou fazer suposições ao interpretar o cronograma
           </p>
@@ -344,7 +344,7 @@ export default function ContractReviewPage() {
             + Adicionar campo que a IA não capturou
           </button>
         ) : (
-          <div className="card p-4">
+          <div className="card glass-card p-4">
             <h3 className="text-sm font-semibold mb-3">Novo campo</h3>
             <div className="grid grid-cols-2 gap-3">
               <div className="col-span-2">
@@ -434,7 +434,7 @@ export default function ContractReviewPage() {
             </h2>
             <div className="space-y-3">
               {grouped[groupName].map((field) => (
-                <div key={field.id} className="card p-4">
+                <div key={field.id} className="card glass-card p-4">
                   <div className="flex items-center justify-between mb-2">
                     <label className="text-sm font-semibold" style={{ color: 'var(--color-moss-deep)' }}>
                       {field.fieldLabel || field.fieldName}

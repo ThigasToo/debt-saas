@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createSupabaseBrowserClient } from '@/lib/supabase/client'
+import Logo from '@/components/Logo'
 
 export default function ResetPasswordPage() {
   const router = useRouter()
@@ -29,7 +30,7 @@ export default function ResetPasswordPage() {
     try {
       const { error: updateError } = await supabase.auth.updateUser({ password })
       if (updateError) throw updateError
-      router.push('/')
+      router.push('/dashboard')
       router.refresh()
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao redefinir senha')
@@ -39,17 +40,17 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--color-canvas)' }}>
-      <div className="card p-8 w-full max-w-sm">
+    <div className="min-h-screen flex items-center justify-center auth-backdrop">
+      <div className="card glass-card p-10 w-full max-w-md" style={{ borderRadius: '28px' }}>
         <div className="flex items-center gap-3 mb-6">
-          <span className="sidebar-mark"><span className="sidebar-mark-core" /></span>
+          <Logo size={48} />
           <div>
             <p className="font-semibold" style={{ fontFamily: 'var(--font-display)' }}>Raiz</p>
             <p className="text-xs" style={{ color: 'var(--color-ink-soft)' }}>Gestão de Dívida</p>
           </div>
         </div>
 
-        <h1 className="text-lg font-semibold mb-1">Nova senha</h1>
+        <h1 className="text-2xl font-semibold mb-1">Nova senha</h1>
         <p className="text-sm mb-6" style={{ color: 'var(--color-ink-soft)' }}>
           Defina uma nova senha pra sua conta.
         </p>
