@@ -1604,3 +1604,62 @@ h4 {
     transition: none;
   }
 }
+
+/* =========================================
+   SIDEBAR — vidro flutuante no desktop, barra compacta no mobile
+========================================= */
+
+.sidebar-glass {
+  margin: 1rem;
+  border-radius: 28px;
+  height: calc(100vh - 2rem);
+  position: sticky;
+  top: 1rem;
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem;
+}
+
+.sidebar-bottom {
+  margin-top: auto;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.sidebar-logout-label {
+  display: inline;
+}
+
+@media (max-width: 768px) {
+  .sidebar-glass {
+    margin: 0;
+    border-radius: 0;
+    height: auto;
+    top: 0;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+  }
+
+  .sidebar-credits {
+    display: none;
+  }
+
+  .sidebar-bottom {
+    margin-top: 0;
+    padding-top: 0;
+    border-top: none;
+  }
+
+  .sidebar-logout-label {
+    display: none;
+  }
+}
+
+/* Utilitário pra próxima rodada — tabelas (Cronograma, etc.) rolarem lateralmente
+   em vez de estourar a tela no mobile */
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}

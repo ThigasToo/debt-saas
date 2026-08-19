@@ -48,19 +48,7 @@ export default function Sidebar() {
   const isLow = balanceUsd !== null && balanceUsd < 0.1
 
   return (
-    <aside
-      className="sidebar glass-panel"
-      style={{
-        margin: '1rem',
-        borderRadius: '28px',
-        height: 'calc(100vh - 2rem)',
-        position: 'sticky',
-        top: '1rem',
-        display: 'flex',
-        flexDirection: 'column',
-        padding: '1.25rem',
-      }}
-    >
+    <aside className="sidebar glass-panel sidebar-glass">
       <Link href="/dashboard" className="sidebar-brand" style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
         <Logo size={38} />
         <span className="sidebar-brand-label">
@@ -86,10 +74,10 @@ export default function Sidebar() {
         })}
       </nav>
 
-      <div style={{ marginTop: 'auto', paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.5)' }}>
+      <div className="sidebar-bottom">
         {balanceUsd !== null && (
           <div
-            className="glass-card"
+            className="glass-card sidebar-credits"
             style={{
               padding: '0.6rem 0.75rem',
               marginBottom: '0.75rem',
@@ -110,7 +98,7 @@ export default function Sidebar() {
           onClick={handleLogout}
           className="glass-pill"
           style={{
-            width: '100%',
+            width: 'auto',
             display: 'flex',
             alignItems: 'center',
             gap: '0.5rem',
@@ -122,7 +110,7 @@ export default function Sidebar() {
           }}
         >
           <span aria-hidden style={{ fontSize: '1rem' }}>⏻</span>
-          Sair
+          <span className="sidebar-logout-label">Sair</span>
         </button>
       </div>
     </aside>
