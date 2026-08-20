@@ -17,10 +17,12 @@ export async function GET(req: NextRequest) {
         name: companies.name,
         documentType: companies.documentType,
         document: companies.cnpj,
-        contractCount: sql<number>`(SELECT COUNT(*) FROM ${contracts} WHERE ${contracts.companyId} = ${companies.id})`,
+        contractCount: sql<number>`count(${contracts.id})`,
       })
       .from(companies)
+      .leftJoin(contracts, eq(contracts.companyId, companies.id))
       .where(eq(companies.accountId, session.accountId))
+      .groupBy(companies.id, companies.name, companies.documentType, companies.cnpj)
       .orderBy(companies.name)
 
     return NextResponse.json({ companies: rows })
