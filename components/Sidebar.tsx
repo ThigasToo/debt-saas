@@ -65,7 +65,7 @@ export default function Sidebar() {
               key={item.href}
               href={item.href}
               className={`nav-link ${isActive ? 'nav-link-active glass-pill' : ''}`}
-              style={isActive ? { background: 'rgba(34, 177, 76, 0.12)', borderColor: 'rgba(34, 177, 76, 0.25)' } : undefined}
+              style={isActive ? { background: 'rgba(34, 177, 76, 0.22)', borderColor: 'rgba(34, 177, 76, 0.25)' } : undefined}
             >
               <span aria-hidden>{item.icon}</span>
               {item.label}

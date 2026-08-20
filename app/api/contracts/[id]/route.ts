@@ -7,6 +7,7 @@ import {
   contractDocuments,
   debtTranches,
   installments,
+  aiUsageEvents,
 } from '@/lib/db/schema'
 import { eq, asc, and } from 'drizzle-orm'
 import { getSessionContext } from '@/lib/auth/session'
@@ -154,6 +155,7 @@ export async function DELETE(
       }
     }
 
+    await db.delete(aiUsageEvents).where(eq(aiUsageEvents.contractId, id))
     await db.delete(installments).where(eq(installments.contractId, id))
     await db.delete(debtTranches).where(eq(debtTranches.contractId, id))
     await db.delete(extractedFields).where(eq(extractedFields.contractId, id))
