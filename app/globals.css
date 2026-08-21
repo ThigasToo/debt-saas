@@ -1748,3 +1748,9 @@ h4 {
 }
 
 
+/* ===== LANDING — nova seção intercalada em verde ===== */
+
+.landing-section-moss {
+  position: relative;
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--color-sprout) 75%, transparent) 25%, color-mix(in srgb, var(--color-sprout) 75%, transparent) 75%, transparent);
+}

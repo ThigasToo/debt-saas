@@ -2,6 +2,8 @@ import Link from 'next/link'
 import type { CSSProperties } from 'react'
 import Logo from '@/components/Logo'
 import FaqAccordion from '@/components/FaqAccordion'
+import ProductTour from '@/components/ProductTour'
+import SecuritySection from '@/components/SecuritySection'
 
 const STEPS = [
   { n: '01', title: 'Envie o PDF', text: 'CCB, CPR, FINAME ou financiamento bancário — qualquer modalidade.' },
@@ -279,6 +281,17 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* VEJA POR DENTRO */}
+      <section className="landing-section-moss py-20">
+        <div className="max-w-5xl mx-auto px-8">
+          <p className="page-eyebrow mb-2 text-center">Veja por dentro</p>
+          <h2 className="text-3xl font-bold text-center mb-14" style={{ fontFamily: 'var(--font-display)' }}>
+            Cada parte do app, em detalhe
+          </h2>
+          <ProductTour />
+        </div>
+      </section>
+
       {/* PRA QUEM É */}
       <section className="max-w-6xl mx-auto px-8 py-16">
         <p className="page-eyebrow mb-2 text-center">Pra quem é</p>
@@ -332,6 +345,9 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* SEGURANÇA E PRIVACIDADE */}
+      <SecuritySection />
+
       {/* FAQ */}
       <section className="max-w-3xl mx-auto px-8 py-20">
         <p className="page-eyebrow mb-2 text-center">Perguntas frequentes</p>
@@ -353,7 +369,7 @@ export default function LandingPage() {
             fala direto com a gente antes de criar a conta.
           </p>
           <div className="flex items-center justify-center gap-3 flex-wrap mb-10">
-            <a href="mailto:comercial@raiz.com.br?subject=Quero%20conhecer%20o%20Raiz" className="btn-primary">
+            <a href="mailto:tcms2014@hotmail.com?subject=Quero%20conhecer%20o%20Raiz" className="btn-primary">
               ✉ Falar com o comercial
             </a>
             <Link href="/login" className="btn-secondary">Prefiro testar sozinho</Link>
