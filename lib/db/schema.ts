@@ -145,3 +145,9 @@ export const creditPurchases = pgTable('credit_purchases', {
 }, (table) => ({
   stripeSessionIdx: uniqueIndex('idx_stripe_session_id').on(table.stripeSessionId),
 }))
+
+export const signupIpLog = pgTable('signup_ip_log', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  ip: text('ip').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+})

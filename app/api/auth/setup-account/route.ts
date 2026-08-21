@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { ensureAccountForUser } from '@/lib/auth/setupAccount'
 
+function getClientIp(req: NextRequest): string | null {
+  const forwarded = req.headers.get('x-forwarded-for')
+  if (forwarded) return forwarded.split(',')[0].trim()
+  return null
+}
+
 export async function POST(req: NextRequest) {
   try {
     const supabase = await createSupabaseServerClient()
@@ -12,7 +18,8 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json().catch(() => ({}))
-    const result = await ensureAccountForUser(user.id, user.email ?? '', body.accountName)
+    const clientIp = getClientIp(req)
+    const result = await ensureAccountForUser(user.id, user.email ?? '', body.accountName, clientIp)
 
     return NextResponse.json({
       success: true,

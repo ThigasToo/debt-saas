@@ -1,5 +1,5 @@
-// Preço vigente do modelo usado na extração (claude-sonnet-5).
-// Fonte: https://docs.claude.com/en/docs/about-claude/pricing
+// Pricing atual do Claude Sonnet 5 (verificar antes de cada revisão de custo):
+// https://docs.claude.com/en/docs/about-claude/pricing
 //
 // ⚠️ PREÇO PROMOCIONAL — válido só até 31/08/2026.
 // A partir de 01/09/2026, sobe para US$3/MTok entrada e US$15/MTok saída.
@@ -24,9 +24,10 @@ export function microsToUsd(micros: number): number {
   return micros / 1_000_000
 }
 
-// Saldo de boas-vindas pra conta nova (mantido em sincronia com o DEFAULT da coluna no banco)
-export const SIGNUP_BONUS_MICROS = 2_000_000
+// Saldo de boas-vindas pra conta nova (mantido em sincronia com o DEFAULT da coluna no banco).
+// Reduzido de propósito — dá pra testar, mas não sustenta abuso de contas descartáveis.
+export const SIGNUP_BONUS_MICROS = 500_000 // US$ 0,50
 
 // Piso mínimo pra sequer tentar um novo upload — protege contra começar uma extração
 // cara com saldo já visivelmente insuficiente
-export const MIN_BALANCE_TO_UPLOAD_MICROS = 10_000 // US$ 0,01
+export const MIN_BALANCE_TO_UPLOAD_MICROS = 50_000 // US$ 0,05
