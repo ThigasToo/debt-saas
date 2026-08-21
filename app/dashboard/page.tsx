@@ -30,11 +30,8 @@ interface DashboardData {
 }
 
 const STATUS_LABEL: Record<string, string> = {
-  PROCESSING: 'Processando',
   PENDING_REVIEW: 'Aguardando revisão',
   ACTIVE: 'Ativos',
-  ARCHIVED: 'Arquivados',
-  FAILED: 'Falharam',
 }
 
 export default function DashboardPage() {
@@ -78,7 +75,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+      <div className="grid grid-cols-3 gap-4 mb-8">
         <div className="card glass-card p-4">
           <p className="text-xs uppercase" style={{ color: 'var(--color-ink-soft)' }}>Total</p>
           <p className="text-2xl font-bold figure">{data.totalContracts}</p>
